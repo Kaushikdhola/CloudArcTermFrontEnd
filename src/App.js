@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Papa from 'papaparse';
 import WordCountChart from './components/WordCountChart';
 import DataTable from './components/DataTable';
