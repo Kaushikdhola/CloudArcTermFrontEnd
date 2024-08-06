@@ -22,6 +22,7 @@ function App() {
     fetch(urlWithTimestamp)
       .then(response => response.text())
       .then(csvData => {
+        console.log(csvData);
         Papa.parse(csvData, {
           header: false,
           complete: (result) => {

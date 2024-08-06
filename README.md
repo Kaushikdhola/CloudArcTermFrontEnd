@@ -1,70 +1,100 @@
-# Getting Started with Create React App
+# Reddit Data Processing Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This application processes real-time Reddit data using AWS services to analyze trends and visualize insights. It demonstrates a scalable, secure, and efficient cloud-based architecture for handling large volumes of social media data.
 
-In the project directory, you can run:
+## Architecture
 
-### `npm start`
+![Architecture Diagram](SysArch.jpeg)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Delivery Model
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The application is deployed on AWS, utilizing both Function-as-a-Service (FaaS) and Infrastructure-as-a-Service (IaaS) models. AWS Lambda is used for backend processing, while an EC2 instance hosts the front-end web application.
 
-### `npm test`
+## Deployment Model
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The application is deployed in a public cloud (AWS) environment, leveraging various AWS services for scalability, security, and cost optimization.
 
-### `npm run build`
+## Components
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### AWS Services Used
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Amazon EC2**: Hosts the front-end web application.
+- **AWS Lambda**: Used for backend processing, including:
+  - **FetchRedditData**: Fetches data from the Reddit API and sends it to Kafka.
+  - **StoreCsvToDynamoDB**: Stores data from S3 to DynamoDB.
+  - **FetchDataforDashboard**: Fetches preprocessed data for the web app dashboard.
+- **Amazon S3**: Stores raw and processed data.
+- **Amazon DynamoDB**: Stores preprocessed Reddit data for querying.
+- **Amazon Kinesis**: Processes data streams.
+- **Amazon Glue**: Performs ETL jobs to transform raw data into a consumable format.
+- **Amazon CloudWatch**: Monitors the application.
+- **Amazon SNS**: Sends alerts.
+- **AWS KMS**: Encrypts data stored in S3 and DynamoDB.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## How It Works
 
-### `npm run eject`
+1. **Data Collection**: The `FetchRedditData` Lambda function fetches data from the Reddit API and sends it to a Kafka topic.
+2. **Data Processing**: A Kafka consumer, deployed as the `StoreCsvToDynamoDB` Lambda function, reads the data, processes it, and stores it in an S3 bucket.
+3. **Data Storage**: The processed data is stored in DynamoDB for easy querying. S3 stores raw and intermediate data.
+4. **ETL Pipeline**: An AWS Glue workflow is triggered to transform raw data into a parquet format.
+5. **Trend Analysis**: The `FetchDataforDashboard` Lambda function performs trend analysis on the data and stores the results in S3.
+6. **Visualization**: The web app, hosted on an EC2 instance, displays the top trending words and preprocessed Reddit posts. Users can click the "Update Data" button to fetch the latest data.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Setup Instructions
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Clone the Repository**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   ```bash
+   git clone https://github.com/Kaushikdhola/CloudArcTermFrontEnd.git
+   cd reddit-data-processing-app
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. **Deploy AWS resources**
+- Use the provided CloudFormation template or Terraform scripts to deploy the AWS infrastructure.
+- Ensure to set up the necessary IAM roles and policies.
 
-## Learn More
+3. **Configure environment variables**
+- Set up Reddit API credentials and other necessary configurations.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. **Deploy Lambda functions**
+- Package and deploy the Kafka Producer, Consumer, and Analysis Lambda functions.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+5. **Set up Glue jobs**
+- Create and configure the Glue ETL job for data transformation.
 
-### Code Splitting
+6. **Deploy frontend application**
+- Navigate to the frontend directory:
+  ```
+  cd frontend
+  npm install
+  npm run build
+  ```
+- Deploy the built files to your EC2 instance or S3 bucket for static hosting.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+7. **Configure API Gateway**
+- Set up the necessary API endpoints and link them to the appropriate Lambda functions.
 
-### Analyzing the Bundle Size
+## Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Access the web application through the provided URL.
+2. Use the dashboard to view real-time Reddit data trends and insights.
+3. Click the "Update Data" button to fetch the latest data from Reddit.
 
-### Making a Progressive Web App
+## Monitoring and Maintenance
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Use CloudWatch dashboards to monitor application performance and health.
+- Set up CloudWatch alarms and SNS topics for critical alerts.
+- Regularly review and update AWS resources for optimal performance and cost-efficiency.
 
-### Advanced Configuration
+## Security
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- All data is encrypted at rest using AWS KMS.
+- API access is secured through API Gateway.
+- Network security is enforced using VPC configurations.
+- Regular security audits are recommended.
 
-### Deployment
+## Backup and Recovery
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- AWS Backup is configured for automated, regular backups of critical data.
+- Ensure to test recovery procedures periodically.
